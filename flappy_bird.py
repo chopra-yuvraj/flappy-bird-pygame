@@ -74,7 +74,7 @@ class Pipe:
 class Game:
     def __init__(self):
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-        pygame.display.set_caption("Flappy Bird - Student Project")
+        pygame.display.set_caption("Flappy Bird - By Yuvraj Chopra")
         self.clock = pygame.time.Clock()
         self.font = pygame.font.Font(None, 36)
         self.reset_game()
