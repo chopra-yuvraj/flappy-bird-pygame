@@ -15,8 +15,6 @@ Also, my friends and I love competing in simple games during study breaks!
 - **Physics Engine** - Realistic gravity and jump mechanics  
 - **Collision Detection** - Precise pipe and ground collision system
 - **Score Tracking** - Points for each pipe successfully passed
-- **Game States** - Start screen, gameplay, and game over modes
-- **Smooth Animation** - 60 FPS gameplay for fluid bird movement
 - **Auto-Restart** - Quick restart functionality to play again
 
 ---
