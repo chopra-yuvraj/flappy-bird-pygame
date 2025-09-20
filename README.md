@@ -15,8 +15,6 @@ Also, my friends and I love competing in simple games during study breaks!
 - **Physics Engine** - Realistic gravity and jump mechanics  
 - **Collision Detection** - Precise pipe and ground collision system
 - **Score Tracking** - Points for each pipe successfully passed
-- **Game States** - Start screen, gameplay, and game over modes
-- **Smooth Animation** - 60 FPS gameplay for fluid bird movement
 - **Auto-Restart** - Quick restart functionality to play again
 
 ---
@@ -63,22 +61,28 @@ Special recognition to:
 ---
 
 ## About the Developer
-**Your Name**  
+
+**Yuvraj Chopra**  
  B.Tech Computer Science Engineering - VIT Vellore  
  B.S. Data Science - IIT Madras  
  Vellore, Tamil Nadu, India
 
-*Passionate about game development and learning new programming concepts. 
-Currently exploring the intersection of software engineering and interactive applications.*
+*Passionate about building simple, effective solutions to everyday problems. 
+Currently exploring the intersection of software engineering and data science.*
+
 
 ### Connect With Me
-[![GitHub](https://img.shields.io/badge/GitHub-yourusername-181717?style=for-the-badge&logo=github)](https://github.com/yourusername)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-yourname-0A66C2?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/yourname)
-[![Email](https://img.shields.io/badge/Email-your.email%40gmail.com-EA4335?style=for-the-badge&logo=gmail&logoColor=white)](mailto:your.email@gmail.com)
+
+[![GitHub](https://img.shields.io/badge/GitHub-chopra--yuvraj-181717?style=for-the-badge&logo=github)](https://github.com/chopra-yuvraj)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-chopra--yuvraj-0A66C2?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/chopra-yuvraj)
+[![Email](https://img.shields.io/badge/Email-yuvrajchopra19%40gmail.com-EA4335?style=for-the-badge&logo=gmail&logoColor=white)](mailto:yuvrajchopra19@gmail.com)
 
 ---
 
 <div align="center">
-**Made with ❤️ and 🎮 during study breaks**  
-[**⭐ Star this repo**](https://github.com/yourusername/flappy-bird-pygame) | [**🐦 Play the game**](https://github.com/yourusername/flappy-bird-pygame)
+
+**Made with ❤️ and ☕ by Yuvraj Chopra**
+
+[ **View on GitHub**](https://github.com/chopra-yuvraj/flappy-bird-pygame)
+
 </div>
