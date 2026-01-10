@@ -9,7 +9,7 @@ SCREEN_HEIGHT = 600
 GROUND_HEIGHT = 100
 PIPE_WIDTH = 70
 PIPE_GAP = 200
-BIRD_SIZE = 34
+BIRD_SIZE = 45   # Increased size for better Angry Bird look
 FPS = 60
 
 # Colors
@@ -56,7 +56,8 @@ class Bird:
     
     def get_rect(self):
         # Slightly broken hitbox for gameplay forgiveness
-        return pygame.Rect(self.x + 5, self.y + 5, self.size - 10, self.size - 10)
+        # Hitbox is smaller than the visual bird
+        return pygame.Rect(self.x + 8, self.y + 8, self.size - 16, self.size - 16)
     
     def draw(self, screen):
         center_x = int(self.x + self.size//2)
@@ -66,46 +67,47 @@ class Bird:
         # Tail Feathers (Black) - Drawn first so they are behind body
         pygame.draw.polygon(screen, BLACK, [
             (center_x - radius + 5, center_y),
-            (center_x - radius - 8, center_y - 8),
-            (center_x - radius - 8, center_y + 8)
+            (center_x - radius - 12, center_y - 10),
+            (center_x - radius - 12, center_y + 10)
         ])
 
         # Body (Red)
         pygame.draw.circle(screen, BIRD_RED, (center_x, center_y), radius)
         # Outline
-        pygame.draw.circle(screen, BLACK, (center_x, center_y), radius, 2)
+        pygame.draw.circle(screen, BLACK, (center_x, center_y), radius, 3)
 
         # Belly (Light patch at bottom)
-        # Using a rect clipped by the circle would be hard, so just a smaller circle distinct offset
-        pygame.draw.circle(screen, BIRD_BELLY, (center_x, center_y + 8), radius - 6)
+        pygame.draw.circle(screen, BIRD_BELLY, (center_x, center_y + 10), radius - 8)
 
         # Eyes (White with Black pupils)
-        eye_radius = 8
-        left_eye_pos = (center_x + 2, center_y - 8)
-        right_eye_pos = (center_x + 14, center_y - 8)
+        eye_radius = 10
+        left_eye_pos = (center_x + 2, center_y - 12)
+        right_eye_pos = (center_x + 18, center_y - 12)
         
+        # Left Eye
         pygame.draw.circle(screen, WHITE, left_eye_pos, eye_radius)
-        pygame.draw.circle(screen, BLACK, left_eye_pos, eye_radius, 1) # Outline
-        pygame.draw.circle(screen, BLACK, (left_eye_pos[0] + 3, left_eye_pos[1]), 3) # Pupil
+        pygame.draw.circle(screen, BLACK, left_eye_pos, eye_radius, 2) # Outline
+        pygame.draw.circle(screen, BLACK, (left_eye_pos[0] + 3, left_eye_pos[1]), 4) # Pupil
         
+        # Right Eye
         pygame.draw.circle(screen, WHITE, right_eye_pos, eye_radius)
-        pygame.draw.circle(screen, BLACK, right_eye_pos, eye_radius, 1) # Outline
-        pygame.draw.circle(screen, BLACK, (right_eye_pos[0] + 3, right_eye_pos[1]), 3) # Pupil
+        pygame.draw.circle(screen, BLACK, right_eye_pos, eye_radius, 2) # Outline
+        pygame.draw.circle(screen, BLACK, (right_eye_pos[0] + 3, right_eye_pos[1]), 4) # Pupil
 
         # Eyebrows (The angry look - clear V shape)
-        eyebrow_thick = 5
+        eyebrow_thick = 4 
         # V shape meeting in middle
-        pygame.draw.line(screen, BLACK, (center_x - 4, center_y - 14), (center_x + 8, center_y - 4), eyebrow_thick)
-        pygame.draw.line(screen, BLACK, (center_x + 8, center_y - 4), (center_x + 20, center_y - 14), eyebrow_thick)
+        pygame.draw.line(screen, BLACK, (center_x - 6, center_y - 20), (center_x + 10, center_y - 6), eyebrow_thick)
+        pygame.draw.line(screen, BLACK, (center_x + 10, center_y - 6), (center_x + 26, center_y - 20), eyebrow_thick)
 
         # Beak (Yellow/Orange Triangle)
         beak_points = [
-            (center_x + 8, center_y + 2),   # Top center
-            (center_x + 22, center_y + 8),  # Tip
-            (center_x + 8, center_y + 14)   # Bottom center
+            (center_x + 10, center_y + 2),   # Top center
+            (center_x + 28, center_y + 10),  # Tip
+            (center_x + 10, center_y + 18)   # Bottom center
         ]
         pygame.draw.polygon(screen, BIRD_BEAK, beak_points)
-        pygame.draw.polygon(screen, BLACK, beak_points, 1)
+        pygame.draw.polygon(screen, BLACK, beak_points, 2)
 
 class Pipe:
     def __init__(self, x):
