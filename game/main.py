@@ -4,13 +4,13 @@ import sys
 import asyncio
 
 # Global constants (Safe to define before init)
-SCREEN_WIDTH = 400
-SCREEN_HEIGHT = 600
-GROUND_HEIGHT = 100
+SCREEN_WIDTH = 600
+SCREEN_HEIGHT = 900
+GROUND_HEIGHT = 100*2
 PIPE_WIDTH = 70
 PIPE_GAP = 200
 BIRD_SIZE = 45   # Increased size for better Angry Bird look
-FPS = 60
+FPS = 60*2
 
 # Colors
 WHITE = (255, 255, 255)
