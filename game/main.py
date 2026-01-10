@@ -279,7 +279,18 @@ class Game:
                 elif event.key == pygame.K_r and self.game_over:
                     self.reset_game()
             
+            # Mouse click and touch support for mobile
             if event.type == pygame.MOUSEBUTTONDOWN:
+                if not self.game_started and not self.game_over:
+                    self.game_started = True
+                    self.bird.jump()
+                elif not self.game_over:
+                    self.bird.jump()
+                elif self.game_over:
+                   self.reset_game()
+            
+            # Touch support for mobile devices (via pygame events)
+            if event.type == pygame.FINGERDOWN:
                 if not self.game_started and not self.game_over:
                     self.game_started = True
                     self.bird.jump()
