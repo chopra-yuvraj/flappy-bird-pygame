@@ -26,10 +26,7 @@ Fill these in EXACTLY.
 | **Build Command** | `pip install -r requirements.txt && python -m pygbag --build game/main.py && mkdir -p website/static/game && cp -r game/build/web/* website/static/game/` |
 | **Start Command** | `gunicorn website.app:app` |
 
-*> **Troubleshooting**: If deployment fails:*
-1. *Check the Logs: Look for "Build successful" or errors like "Module not found".*
-2. *Clear Cache: Click "Manual Deploy" -> "Clear Build Cache & Deploy".*
-3. *Double check you pushed `website/__init__.py`.*
+*> **Troubleshooting**: If deployment fails, try clearing the build cache on Render (Manual Deploy -> Clear Build Cache & Deploy).*
 
 ---
 
