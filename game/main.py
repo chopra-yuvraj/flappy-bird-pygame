@@ -3,14 +3,13 @@ import random
 import sys
 import asyncio
 
-pygame.init()
-
+# Global constants (Safe to define before init)
 SCREEN_WIDTH = 400
 SCREEN_HEIGHT = 600
 GROUND_HEIGHT = 100
-PIPE_WIDTH = 70  # Slightly thinner pipes
-PIPE_GAP = 200   # Wider gap for easier gameplay
-BIRD_SIZE = 34   # Slightly smaller bird
+PIPE_WIDTH = 70
+PIPE_GAP = 200
+BIRD_SIZE = 34
 FPS = 60
 
 # Colors
@@ -19,8 +18,9 @@ BLACK = (0, 0, 0)
 SKY_BLUE = (135, 206, 235)
 PIPE_GREEN = (34, 177, 76)
 PIPE_DARK_GREEN = (14, 100, 35)
-BIRD_YELLOW = (255, 215, 0)
-BIRD_ORANGE = (255, 140, 0)
+BIRD_RED = (200, 0, 0)       # Angry Bird Red
+BIRD_BELLY = (222, 184, 135) # Light shade for belly
+BIRD_BEAK = (255, 165, 0)    # Orange beak
 GROUND_BROWN = (222, 184, 135)
 GROUND_LINE = (139, 69, 19)
 
@@ -29,8 +29,8 @@ class Bird:
         self.x = 80
         self.y = SCREEN_HEIGHT // 2
         self.velocity = 0
-        self.gravity = 0.5  # Reduced gravity for easier control
-        self.jump_strength = -8 # Reduced jump strength to match gravity
+        self.gravity = 0.5
+        self.jump_strength = -8
         self.size = BIRD_SIZE
         self.rotation = 0
         
@@ -38,7 +38,7 @@ class Bird:
         self.velocity += self.gravity
         self.y += self.velocity
         
-        # Rotation logic
+        # Rotation based on velocity
         if self.velocity < 0:
             self.rotation = 25
         else:
@@ -55,30 +55,56 @@ class Bird:
         self.rotation = 45
     
     def get_rect(self):
-        # forgiving collision box (smaller than visual)
+        # Slightly broken hitbox for gameplay forgiveness
         return pygame.Rect(self.x + 5, self.y + 5, self.size - 10, self.size - 10)
     
     def draw(self, screen):
-        # Draw Body
-        center = (int(self.x + self.size//2), int(self.y + self.size//2))
-        pygame.draw.circle(screen, BIRD_YELLOW, center, self.size//2)
-        pygame.draw.circle(screen, BIRD_ORANGE, center, self.size//2, 2) # Outline
-        
-        # Draw Eye
-        eye_pos = (int(self.x + self.size//2 + 8), int(self.y + self.size//2 - 8))
-        pygame.draw.circle(screen, WHITE, eye_pos, 8)
-        pygame.draw.circle(screen, BLACK, (eye_pos[0] + 2, eye_pos[1]), 3)
-        
-        # Draw Wing
-        wing_rect = (self.x + 5, self.y + 20, 18, 12)
-        pygame.draw.ellipse(screen, WHITE, wing_rect)
-        pygame.draw.ellipse(screen, BLACK, wing_rect, 1)
+        center_x = int(self.x + self.size//2)
+        center_y = int(self.y + self.size//2)
+        radius = self.size // 2
 
-        # Draw Beak
-        beak_points = [(self.x + self.size - 5, self.y + 15), 
-                       (self.x + self.size + 5, self.y + 20), 
-                       (self.x + self.size - 5, self.y + 25)]
-        pygame.draw.polygon(screen, BIRD_ORANGE, beak_points)
+        # Tail Feathers (Black) - Drawn first so they are behind body
+        pygame.draw.polygon(screen, BLACK, [
+            (center_x - radius + 5, center_y),
+            (center_x - radius - 8, center_y - 8),
+            (center_x - radius - 8, center_y + 8)
+        ])
+
+        # Body (Red)
+        pygame.draw.circle(screen, BIRD_RED, (center_x, center_y), radius)
+        # Outline
+        pygame.draw.circle(screen, BLACK, (center_x, center_y), radius, 2)
+
+        # Belly (Light patch at bottom)
+        # Using a rect clipped by the circle would be hard, so just a smaller circle distinct offset
+        pygame.draw.circle(screen, BIRD_BELLY, (center_x, center_y + 8), radius - 6)
+
+        # Eyes (White with Black pupils)
+        eye_radius = 8
+        left_eye_pos = (center_x + 2, center_y - 8)
+        right_eye_pos = (center_x + 14, center_y - 8)
+        
+        pygame.draw.circle(screen, WHITE, left_eye_pos, eye_radius)
+        pygame.draw.circle(screen, BLACK, left_eye_pos, eye_radius, 1) # Outline
+        pygame.draw.circle(screen, BLACK, (left_eye_pos[0] + 3, left_eye_pos[1]), 3) # Pupil
+        
+        pygame.draw.circle(screen, WHITE, right_eye_pos, eye_radius)
+        pygame.draw.circle(screen, BLACK, right_eye_pos, eye_radius, 1) # Outline
+        pygame.draw.circle(screen, BLACK, (right_eye_pos[0] + 3, right_eye_pos[1]), 3) # Pupil
+
+        # Eyebrows (The angry look - clear V shape)
+        eyebrow_thick = 5
+        # V shape meeting in middle
+        pygame.draw.line(screen, BLACK, (center_x - 4, center_y - 14), (center_x + 8, center_y - 4), eyebrow_thick)
+        pygame.draw.line(screen, BLACK, (center_x + 8, center_y - 4), (center_x + 20, center_y - 14), eyebrow_thick)
+
+        # Beak (Yellow/Orange Triangle)
+        beak_points = [
+            (center_x + 8, center_y + 2),   # Top center
+            (center_x + 22, center_y + 8),  # Tip
+            (center_x + 8, center_y + 14)   # Bottom center
+        ]
+        pygame.draw.polygon(screen, BIRD_BEAK, beak_points)
         pygame.draw.polygon(screen, BLACK, beak_points, 1)
 
 class Pipe:
@@ -95,22 +121,24 @@ class Pipe:
         self.bottom_rect.x = self.x
         
     def draw(self, screen):
-        # Top Pipe
+        # Top Pipe with 3D effect
         pygame.draw.rect(screen, PIPE_GREEN, self.top_rect)
         pygame.draw.rect(screen, PIPE_DARK_GREEN, self.top_rect, 2)
-        # Top Pipe Cap
+        
         cap_height = 25
+        # Top Cap
         pygame.draw.rect(screen, PIPE_GREEN, (self.x - 4, self.height - cap_height, PIPE_WIDTH + 8, cap_height))
         pygame.draw.rect(screen, PIPE_DARK_GREEN, (self.x - 4, self.height - cap_height, PIPE_WIDTH + 8, cap_height), 2)
 
         # Bottom Pipe
         pygame.draw.rect(screen, PIPE_GREEN, self.bottom_rect)
         pygame.draw.rect(screen, PIPE_DARK_GREEN, self.bottom_rect, 2)
-        # Bottom Pipe Cap
+        
+        # Bottom Cap
         pygame.draw.rect(screen, PIPE_GREEN, (self.x - 4, self.height + PIPE_GAP, PIPE_WIDTH + 8, cap_height))
         pygame.draw.rect(screen, PIPE_DARK_GREEN, (self.x - 4, self.height + PIPE_GAP, PIPE_WIDTH + 8, cap_height), 2)
         
-        # Highlights for 3D effect
+        # Highlights
         pygame.draw.line(screen, (100, 200, 100), (self.x + 10, 0), (self.x + 10, self.height - cap_height), 3)
         pygame.draw.line(screen, (100, 200, 100), (self.x + 10, self.height + PIPE_GAP + cap_height), (self.x + 10, SCREEN_HEIGHT), 3)
 
@@ -120,13 +148,19 @@ class Pipe:
 
 class Game:
     def __init__(self):
+        # Initialize Pygame here, not globally, to be safer for headless builds
+        try:
+            pygame.init()
+            pygame.font.init()
+        except:
+            pass # Handle potential headless issues gracefully
+            
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption("Flappy Bird - By Yuvraj Chopra")
         self.clock = pygame.time.Clock()
         self.font = pygame.font.Font(None, 40)
         self.score_font = pygame.font.Font(None, 60)
         
-        # Cloud data for background
         self.clouds = []
         for i in range(5):
              self.clouds.append({
@@ -152,7 +186,7 @@ class Game:
         pipe_speed = 3
         
         self.pipe_timer += 1
-        if self.pipe_timer > 100: # Slower pipe generation
+        if self.pipe_timer > 100: 
             self.pipes.append(self.create_pipe())
             self.pipe_timer = 0
             
@@ -176,7 +210,7 @@ class Game:
                 cloud['x'] = SCREEN_WIDTH + 100
                 cloud['y'] = random.randint(20, 200)
             
-            # Simple cloud drawing (3 circles)
+            # Simple cloud drawing
             pygame.draw.circle(self.screen, WHITE, (int(cloud['x']), int(cloud['y'])), 30)
             pygame.draw.circle(self.screen, WHITE, (int(cloud['x'] - 20), int(cloud['y'] + 10)), 25)
             pygame.draw.circle(self.screen, WHITE, (int(cloud['x'] + 20), int(cloud['y'] + 10)), 25)
@@ -189,10 +223,10 @@ class Game:
         ground_rect = pygame.Rect(0, SCREEN_HEIGHT - GROUND_HEIGHT, SCREEN_WIDTH, GROUND_HEIGHT)
         pygame.draw.rect(self.screen, GROUND_BROWN, ground_rect)
         
-        # Decoration on ground (Grass line)
+        # Ground decoration
         pygame.draw.line(self.screen, (100, 200, 100), (0, SCREEN_HEIGHT - GROUND_HEIGHT), (SCREEN_WIDTH, SCREEN_HEIGHT - GROUND_HEIGHT), 10)
         
-        # Moving ground effect
+        # Moving ground
         offset = -(pygame.time.get_ticks() // 5) % 20
         for i in range(offset, SCREEN_WIDTH, 20):
              pygame.draw.line(self.screen, GROUND_LINE, (i, SCREEN_HEIGHT - GROUND_HEIGHT), (i - 10, SCREEN_HEIGHT), 2)
@@ -200,14 +234,12 @@ class Game:
     def draw_ui(self):
         if self.game_started:
              score_text = self.score_font.render(str(self.score), True, WHITE)
-             # Shadow
              score_shadow = self.score_font.render(str(self.score), True, (0,0,0, 50))
              self.screen.blit(score_shadow, (SCREEN_WIDTH//2 - 18, 52))
              self.screen.blit(score_text, (SCREEN_WIDTH//2 - 20, 50))
         
         if not self.game_started and not self.game_over:
-            # Title Screen
-            title_text = self.font.render("FLAPPY BIRD", True, BIRD_ORANGE)
+            title_text = self.font.render("FLAPPY BIRD", True, BIRD_RED)
             start_text = self.font.render("Press SPACE", True, WHITE)
             
             title_rect = title_text.get_rect(center=(SCREEN_WIDTH//2, SCREEN_HEIGHT//2 - 50))
@@ -217,7 +249,6 @@ class Game:
             self.screen.blit(start_text, start_rect)
         
         if self.game_over:
-            # Game Over Box
             box_rect = pygame.Rect(50, 200, 300, 200)
             pygame.draw.rect(self.screen, GROUND_BROWN, box_rect, border_radius=10)
             pygame.draw.rect(self.screen, WHITE, box_rect, 3, border_radius=10)
@@ -245,8 +276,7 @@ class Game:
                         
                 elif event.key == pygame.K_r and self.game_over:
                     self.reset_game()
-             
-            # Mouse support for web
+            
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if not self.game_started and not self.game_over:
                     self.game_started = True
