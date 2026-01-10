@@ -1,4 +1,4 @@
 flask
 gunicorn
-pygame==2.5.2
+pygame==2.6.1
 pygbag==0.8.0
