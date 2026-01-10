@@ -8,30 +8,41 @@ pygame.init()
 SCREEN_WIDTH = 400
 SCREEN_HEIGHT = 600
 GROUND_HEIGHT = 100
-PIPE_WIDTH = 80
-PIPE_GAP = 150
-BIRD_SIZE = 40
+PIPE_WIDTH = 70  # Slightly thinner pipes
+PIPE_GAP = 200   # Wider gap for easier gameplay
+BIRD_SIZE = 34   # Slightly smaller bird
 FPS = 60
 
+# Colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
-GREEN = (0, 128, 0)
-BLUE = (135, 206, 250)
-YELLOW = (255, 255, 0)
-BROWN = (139, 69, 19)
+SKY_BLUE = (135, 206, 235)
+PIPE_GREEN = (34, 177, 76)
+PIPE_DARK_GREEN = (14, 100, 35)
+BIRD_YELLOW = (255, 215, 0)
+BIRD_ORANGE = (255, 140, 0)
+GROUND_BROWN = (222, 184, 135)
+GROUND_LINE = (139, 69, 19)
 
 class Bird:
     def __init__(self):
         self.x = 80
         self.y = SCREEN_HEIGHT // 2
         self.velocity = 0
-        self.gravity = 0.8
-        self.jump_strength = -12
+        self.gravity = 0.5  # Reduced gravity for easier control
+        self.jump_strength = -8 # Reduced jump strength to match gravity
         self.size = BIRD_SIZE
+        self.rotation = 0
         
     def update(self):
         self.velocity += self.gravity
         self.y += self.velocity
+        
+        # Rotation logic
+        if self.velocity < 0:
+            self.rotation = 25
+        else:
+            self.rotation = max(-90, self.rotation - 3)
         
         if self.y < 0:
             self.y = 0
@@ -41,13 +52,34 @@ class Bird:
     
     def jump(self):
         self.velocity = self.jump_strength
+        self.rotation = 45
     
     def get_rect(self):
-        return pygame.Rect(self.x, self.y, self.size, self.size)
+        # forgiving collision box (smaller than visual)
+        return pygame.Rect(self.x + 5, self.y + 5, self.size - 10, self.size - 10)
     
     def draw(self, screen):
-        pygame.draw.circle(screen, YELLOW, (int(self.x + self.size//2), int(self.y + self.size//2)), self.size//2)
-        pygame.draw.circle(screen, BLACK, (int(self.x + self.size//2 + 10), int(self.y + self.size//2 - 5)), 3)
+        # Draw Body
+        center = (int(self.x + self.size//2), int(self.y + self.size//2))
+        pygame.draw.circle(screen, BIRD_YELLOW, center, self.size//2)
+        pygame.draw.circle(screen, BIRD_ORANGE, center, self.size//2, 2) # Outline
+        
+        # Draw Eye
+        eye_pos = (int(self.x + self.size//2 + 8), int(self.y + self.size//2 - 8))
+        pygame.draw.circle(screen, WHITE, eye_pos, 8)
+        pygame.draw.circle(screen, BLACK, (eye_pos[0] + 2, eye_pos[1]), 3)
+        
+        # Draw Wing
+        wing_rect = (self.x + 5, self.y + 20, 18, 12)
+        pygame.draw.ellipse(screen, WHITE, wing_rect)
+        pygame.draw.ellipse(screen, BLACK, wing_rect, 1)
+
+        # Draw Beak
+        beak_points = [(self.x + self.size - 5, self.y + 15), 
+                       (self.x + self.size + 5, self.y + 20), 
+                       (self.x + self.size - 5, self.y + 25)]
+        pygame.draw.polygon(screen, BIRD_ORANGE, beak_points)
+        pygame.draw.polygon(screen, BLACK, beak_points, 1)
 
 class Pipe:
     def __init__(self, x):
@@ -63,11 +95,25 @@ class Pipe:
         self.bottom_rect.x = self.x
         
     def draw(self, screen):
-        pygame.draw.rect(screen, GREEN, self.top_rect)
-        pygame.draw.rect(screen, GREEN, self.bottom_rect)
-        pygame.draw.rect(screen, GREEN, (self.x - 5, self.height - 20, PIPE_WIDTH + 10, 20))
-        pygame.draw.rect(screen, GREEN, (self.x - 5, self.height + PIPE_GAP, PIPE_WIDTH + 10, 20))
-    
+        # Top Pipe
+        pygame.draw.rect(screen, PIPE_GREEN, self.top_rect)
+        pygame.draw.rect(screen, PIPE_DARK_GREEN, self.top_rect, 2)
+        # Top Pipe Cap
+        cap_height = 25
+        pygame.draw.rect(screen, PIPE_GREEN, (self.x - 4, self.height - cap_height, PIPE_WIDTH + 8, cap_height))
+        pygame.draw.rect(screen, PIPE_DARK_GREEN, (self.x - 4, self.height - cap_height, PIPE_WIDTH + 8, cap_height), 2)
+
+        # Bottom Pipe
+        pygame.draw.rect(screen, PIPE_GREEN, self.bottom_rect)
+        pygame.draw.rect(screen, PIPE_DARK_GREEN, self.bottom_rect, 2)
+        # Bottom Pipe Cap
+        pygame.draw.rect(screen, PIPE_GREEN, (self.x - 4, self.height + PIPE_GAP, PIPE_WIDTH + 8, cap_height))
+        pygame.draw.rect(screen, PIPE_DARK_GREEN, (self.x - 4, self.height + PIPE_GAP, PIPE_WIDTH + 8, cap_height), 2)
+        
+        # Highlights for 3D effect
+        pygame.draw.line(screen, (100, 200, 100), (self.x + 10, 0), (self.x + 10, self.height - cap_height), 3)
+        pygame.draw.line(screen, (100, 200, 100), (self.x + 10, self.height + PIPE_GAP + cap_height), (self.x + 10, SCREEN_HEIGHT), 3)
+
     def collides_with(self, bird):
         bird_rect = bird.get_rect()
         return bird_rect.colliderect(self.top_rect) or bird_rect.colliderect(self.bottom_rect)
@@ -77,7 +123,18 @@ class Game:
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption("Flappy Bird - By Yuvraj Chopra")
         self.clock = pygame.time.Clock()
-        self.font = pygame.font.Font(None, 36)
+        self.font = pygame.font.Font(None, 40)
+        self.score_font = pygame.font.Font(None, 60)
+        
+        # Cloud data for background
+        self.clouds = []
+        for i in range(5):
+             self.clouds.append({
+                 'x': random.randint(0, SCREEN_WIDTH),
+                 'y': random.randint(20, 200),
+                 'speed': random.uniform(0.5, 1.5)
+             })
+             
         self.reset_game()
         
     def reset_game(self):
@@ -95,7 +152,7 @@ class Game:
         pipe_speed = 3
         
         self.pipe_timer += 1
-        if self.pipe_timer > 90: 
+        if self.pipe_timer > 100: # Slower pipe generation
             self.pipes.append(self.create_pipe())
             self.pipe_timer = 0
             
@@ -111,34 +168,67 @@ class Game:
                 
             if pipe.collides_with(self.bird):
                 self.game_over = True
-    
+
+    def draw_clouds(self):
+        for cloud in self.clouds:
+            cloud['x'] -= cloud['speed']
+            if cloud['x'] < -100:
+                cloud['x'] = SCREEN_WIDTH + 100
+                cloud['y'] = random.randint(20, 200)
+            
+            # Simple cloud drawing (3 circles)
+            pygame.draw.circle(self.screen, WHITE, (int(cloud['x']), int(cloud['y'])), 30)
+            pygame.draw.circle(self.screen, WHITE, (int(cloud['x'] - 20), int(cloud['y'] + 10)), 25)
+            pygame.draw.circle(self.screen, WHITE, (int(cloud['x'] + 20), int(cloud['y'] + 10)), 25)
+
     def draw_background(self):
-        self.screen.fill(BLUE)
+        self.screen.fill(SKY_BLUE)
+        self.draw_clouds()
         
+        # Ground
         ground_rect = pygame.Rect(0, SCREEN_HEIGHT - GROUND_HEIGHT, SCREEN_WIDTH, GROUND_HEIGHT)
-        pygame.draw.rect(self.screen, BROWN, ground_rect)
+        pygame.draw.rect(self.screen, GROUND_BROWN, ground_rect)
         
-        for i in range(0, SCREEN_WIDTH, 20):
-            pygame.draw.rect(self.screen, (100, 50, 0), (i, SCREEN_HEIGHT - GROUND_HEIGHT, 10, 10))
-    
+        # Decoration on ground (Grass line)
+        pygame.draw.line(self.screen, (100, 200, 100), (0, SCREEN_HEIGHT - GROUND_HEIGHT), (SCREEN_WIDTH, SCREEN_HEIGHT - GROUND_HEIGHT), 10)
+        
+        # Moving ground effect
+        offset = -(pygame.time.get_ticks() // 5) % 20
+        for i in range(offset, SCREEN_WIDTH, 20):
+             pygame.draw.line(self.screen, GROUND_LINE, (i, SCREEN_HEIGHT - GROUND_HEIGHT), (i - 10, SCREEN_HEIGHT), 2)
+
     def draw_ui(self):
-        score_text = self.font.render(f"Score: {self.score}", True, WHITE)
-        self.screen.blit(score_text, (10, 10))
+        if self.game_started:
+             score_text = self.score_font.render(str(self.score), True, WHITE)
+             # Shadow
+             score_shadow = self.score_font.render(str(self.score), True, (0,0,0, 50))
+             self.screen.blit(score_shadow, (SCREEN_WIDTH//2 - 18, 52))
+             self.screen.blit(score_text, (SCREEN_WIDTH//2 - 20, 50))
         
         if not self.game_started and not self.game_over:
-            start_text = self.font.render("Press SPACE to start!", True, WHITE)
-            text_rect = start_text.get_rect(center=(SCREEN_WIDTH//2, SCREEN_HEIGHT//2))
-            self.screen.blit(start_text, text_rect)
+            # Title Screen
+            title_text = self.font.render("FLAPPY BIRD", True, BIRD_ORANGE)
+            start_text = self.font.render("Press SPACE", True, WHITE)
+            
+            title_rect = title_text.get_rect(center=(SCREEN_WIDTH//2, SCREEN_HEIGHT//2 - 50))
+            start_rect = start_text.get_rect(center=(SCREEN_WIDTH//2, SCREEN_HEIGHT//2 + 20))
+            
+            self.screen.blit(title_text, title_rect)
+            self.screen.blit(start_text, start_rect)
         
         if self.game_over:
-            game_over_text = self.font.render("Game Over!", True, WHITE)
-            restart_text = self.font.render("Press R to restart", True, WHITE)
+            # Game Over Box
+            box_rect = pygame.Rect(50, 200, 300, 200)
+            pygame.draw.rect(self.screen, GROUND_BROWN, box_rect, border_radius=10)
+            pygame.draw.rect(self.screen, WHITE, box_rect, 3, border_radius=10)
             
-            game_over_rect = game_over_text.get_rect(center=(SCREEN_WIDTH//2, SCREEN_HEIGHT//2 - 20))
-            restart_rect = restart_text.get_rect(center=(SCREEN_WIDTH//2, SCREEN_HEIGHT//2 + 20))
+            game_over_text = self.font.render("GAME OVER", True, WHITE)
+            score_text = self.font.render(f"Score: {self.score}", True, BLACK)
+            restart_text = self.font.render("Press R to Restart", True, WHITE)
             
-            self.screen.blit(game_over_text, game_over_rect)
-            self.screen.blit(restart_text, restart_rect)
+            self.screen.blit(game_over_text, (box_rect.centerx - game_over_text.get_width()//2, box_rect.y + 30))
+            self.screen.blit(score_text, (box_rect.centerx - score_text.get_width()//2, box_rect.y + 80))
+            self.screen.blit(restart_text, (box_rect.centerx - restart_text.get_width()//2, box_rect.y + 140))
     
     def handle_events(self):
         for event in pygame.event.get():
@@ -149,12 +239,23 @@ class Game:
                 if event.key == pygame.K_SPACE:
                     if not self.game_started and not self.game_over:
                         self.game_started = True
+                        self.bird.jump()
                     elif not self.game_over:
                         self.bird.jump()
                         
                 elif event.key == pygame.K_r and self.game_over:
                     self.reset_game()
-                    
+             
+            # Mouse support for web
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if not self.game_started and not self.game_over:
+                    self.game_started = True
+                    self.bird.jump()
+                elif not self.game_over:
+                    self.bird.jump()
+                elif self.game_over:
+                   self.reset_game()
+
         return True
     
     async def run(self):
@@ -185,7 +286,6 @@ class Game:
             await asyncio.sleep(0)  # Critical for web compatibility
         
         pygame.quit()
-        # sys.exit() # Removed to avoid browser crashes if wrapped
 
 if __name__ == "__main__":
     game = Game()
