@@ -4,29 +4,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Play Flappy Bird</title>
+    <title>Playing Flappy Bird | Yuvraj Chopra</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&display=swap" rel="stylesheet">
     <style>
         body {
             margin: 0;
-            background-color: #333;
+            background-color: #2C3E50;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
             color: white;
-            font-family: sans-serif;
+            font-family: 'Outfit', sans-serif;
+            overflow: hidden;
         }
 
-        .game-container {
+        .back-link {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #ecf0f1;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 25px;
+            border-radius: 50px;
+            backdrop-filter: blur(5px);
+            transition: 0.3s;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(-3px);
+        }
+
+        .game-wrapper {
+            position: relative;
             width: 100%;
             height: 100%;
-            /* Full screen iframe */
-            max-width: 1280px;
-            /* Limit max game size if needed */
-            max-height: 720px;
-            border: 2px solid #555;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .game-frame {
+            border: 4px solid #F4CE5E;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            overflow: hidden;
+            width: 400px;
+            height: 600px;
+            /* Match Pygame dimensions */
+            background: #000;
         }
 
         iframe {
@@ -35,27 +66,28 @@
             border: none;
         }
 
-        .back-link {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            color: white;
-            text-decoration: none;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 10px 20px;
-            border-radius: 5px;
+        .branding {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.5);
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
     </style>
 </head>
 
 <body>
-    <a href="/" class="back-link">← Back to Menu</a>
-    <div class="game-container">
-        <!-- 
-            We serve the pygbag output from /static/game/index.html 
-            Make sure to place the build files in website/static/game/
-        -->
-        <iframe src="{{ url_for('static', filename='game/index.html') }}" title="Flappy Bird Game"></iframe>
+    <a href="/" class="back-link">← Exit Game</a>
+
+    <div class="game-wrapper">
+        <div class="game-frame">
+            <!-- Game loads here -->
+            <iframe src="{{ url_for('static', filename='game/index.html') }}" title="Flappy Bird"></iframe>
+        </div>
+
+        <div class="branding">
+            Built by Yuvraj Chopra
+        </div>
     </div>
 </body>
 
