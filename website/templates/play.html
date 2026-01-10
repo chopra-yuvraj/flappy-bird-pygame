@@ -77,18 +77,30 @@
 </head>
 
 <body>
-    <a href="/" class="back-link">← Exit Game</a>
+    <button class="back-link" onclick="window.location.href='/'">← Exit Game</button>
 
     <div class="game-wrapper">
         <div class="game-frame">
             <!-- Game loads here -->
-            <iframe src="{{ url_for('static', filename='game/index.html') }}" title="Flappy Bird"></iframe>
+            <iframe id="game-iframe" src="/game" title="Flappy Bird" allowfullscreen sandbox="allow-same-origin allow-scripts"></iframe>
         </div>
 
         <div class="branding">
             Built by Yuvraj Chopra
         </div>
     </div>
+
+    <script>
+        // Ensure proper iframe styling
+        var iframe = document.getElementById('game-iframe');
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        iframe.style.border = 'none';
+        
+        // Add z-index to back button to keep it clickable
+        var backBtn = document.querySelector('.back-link');
+        backBtn.style.zIndex = '1000';
+    </script>
 </body>
 
 </html>

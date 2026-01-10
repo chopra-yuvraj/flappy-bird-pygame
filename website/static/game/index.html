@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flappy Bird</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #2C3E50;
+            font-family: Arial, sans-serif;
+        }
+        
+        canvas {
+            display: block;
+            border: 4px solid #F4CE5E;
+            background: #000;
+        }
+        
+        #loading {
+            color: white;
+            font-size: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading">Loading game...</div>
+    <canvas id="pygame-canvas"></canvas>
+    
+    <script>
+        // This file will be replaced with pygbag build output
+        // For now, show a loading message
+        window.addEventListener('load', function() {
+            var loader = document.getElementById('loading');
+            loader.textContent = 'Game assets are being prepared...';
+        });
+    </script>
+</body>
+</html>
