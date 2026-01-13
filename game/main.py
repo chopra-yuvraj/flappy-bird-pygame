@@ -4,13 +4,13 @@ import sys
 import asyncio
 
 # Global constants (Safe to define before init)
-SCREEN_WIDTH = 600
-SCREEN_HEIGHT = 900
-GROUND_HEIGHT = 100*2
-PIPE_WIDTH = 70
-PIPE_GAP = 200
-BIRD_SIZE = 45   # Increased size for better Angry Bird look
-FPS = 60*2
+SCREEN_WIDTH = 400
+SCREEN_HEIGHT = 600
+GROUND_HEIGHT = 100
+PIPE_WIDTH = 50
+PIPE_GAP = 150
+BIRD_SIZE = 30   # Scaled down for 400x600
+FPS = 60
 
 # Colors
 WHITE = (255, 255, 255)
@@ -188,7 +188,7 @@ class Game:
         pipe_speed = 3
         
         self.pipe_timer += 1
-        if self.pipe_timer > 100: 
+        if self.pipe_timer > 90:  # Adjusted for 60 FPS (approx 1.5s) 
             self.pipes.append(self.create_pipe())
             self.pipe_timer = 0
             
