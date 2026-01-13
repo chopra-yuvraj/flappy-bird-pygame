@@ -11,7 +11,7 @@ def index():
 def play():
     return render_template('play.html')
 
-@app.route('/game')
+@app.route('/game/')
 def game():
     """Serve the Pygame web build"""
     return send_from_directory(os.path.join(app.static_folder, 'game'), 'index.html')
@@ -20,6 +20,12 @@ def game():
 def serve_game_files(filename):
     """Serve game assets (JS, CSS, WASM, etc)"""
     return send_from_directory(os.path.join(app.static_folder, 'game'), filename)
+
+@app.after_request
+def add_header(response):
+    response.headers['Cross-Origin-Opener-Policy'] = 'same-origin'
+    response.headers['Cross-Origin-Embedder-Policy'] = 'require-corp'
+    return response
 
 if __name__ == '__main__':
     # Render provides PORT env var

@@ -82,7 +82,8 @@
     <div class="game-wrapper">
         <div class="game-frame">
             <!-- Game loads here -->
-            <iframe id="game-iframe" src="/game" title="Flappy Bird" allowfullscreen sandbox="allow-same-origin allow-scripts"></iframe>
+            <iframe id="game-iframe" src="/game/" title="Flappy Bird" allowfullscreen
+                sandbox="allow-same-origin allow-scripts"></iframe>
         </div>
 
         <div class="branding">
@@ -96,7 +97,7 @@
         iframe.style.width = '100%';
         iframe.style.height = '100%';
         iframe.style.border = 'none';
-        
+
         // Add z-index to back button to keep it clickable
         var backBtn = document.querySelector('.back-link');
         backBtn.style.zIndex = '1000';
