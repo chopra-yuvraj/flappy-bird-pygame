@@ -9,7 +9,7 @@ SCREEN_HEIGHT = 600
 GROUND_HEIGHT = 100
 PIPE_WIDTH = 50
 PIPE_GAP = 150
-BIRD_SIZE = 30   # Scaled down for 400x600
+BIRD_SIZE = 45   # Scaled down for 400x600
 FPS = 60
 
 # Colors
